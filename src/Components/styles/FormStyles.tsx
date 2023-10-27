@@ -1,3 +1,4 @@
+import { Field } from "formik"
 import {styled} from "styled-components";
 
 export const MainHeading = styled.h2`
@@ -12,9 +13,10 @@ export const MainContainer = styled.div`
 export const FormStyles = styled.input<{ icon: string }>`
   border: 1px solid black;
   border-radius: 22px;
-  padding: 15px;
+  padding: 12px;
   outline: none;
   margin: 1vw;
+  width: 60%;
 
   background: ${(props) => (props?.icon ? `url(${props.icon})` : "none")};
   background-position: 10px center; /* Position the SVG on the left side */
@@ -27,7 +29,7 @@ export const FormStyles = styled.input<{ icon: string }>`
 export const NameStyle = styled.div`
   display: flex;
   width: 100%;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   flex-direction: row;
 
   & > input {
@@ -52,7 +54,8 @@ export const StyledSelect = styled.select`
   border: 1px solid black;
   margin: 1vw;
   background-color: transparent;
-  width: 100%;
+  width: 65%;
+  border-radius: 22px;
 
   &:focus {
     outline: none;
@@ -64,9 +67,10 @@ export const AddressContainer = styled.div`
   width: 100%;
   justify-content: space-between;
   flex-direction: row;
+  ;
 
   & > input {
-    width: 40%;
+    width: 0%;
   }
 `;
 
@@ -75,12 +79,47 @@ export const CheckboxLabel = styled.label`
   border: 1px solid black;
   padding: 15px;
   outline: none;
-  margin: 0.2vw 1vw;
+  margin: 20px 0px 0px 0px;
+  width: 66%;
+  border-radius: 26px;
+`;
+
+export const RadioboxInput = styled.input`
+  appearance: none;
+  width: 1.2em;
+  margin-right: 10px;
+  height: 1.2em;
+  border: 1px solid #000;
+  border-radius: 70%;
+  outline: none;
+  cursor: pointer;
+  &:checked {
+    background-color: #00c8ff;
+    border-color: white;
+  }
+
+  
 `;
 
 export const CheckboxInput = styled.input`
-  margin-right: 8px;
+  appearance: none;
+  width: 1.2em;
+  margin-right: 10px;
+  height: 1.2em;
+  border: 1px solid #000;
+  border-radius: 10%;
+  outline: none;
+  cursor: pointer;
+  &:checked {
+    background-color: #ff00cc;
+    border-color: white;
+  }
+
+  
 `;
+
+
+
 export const TandCondition = styled.div`
   margin-top: 1.5vw;
 `;
@@ -111,4 +150,14 @@ export const ErrorModel = styled.div`
     height: 54px;
     background-color: #ff360073;
     color: #fff;
+`
+export const CustomRadioBtn = styled.input`
+ appearance: none;
+ margin-right: 10px;
+  height: 1.2em;
+  border: 1px solid #000;
+  border-radius: 40%;
+  outline: none;
+  cursor: pointer; 
+  width: 1.2em;  
 `

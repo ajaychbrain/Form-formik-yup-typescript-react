@@ -1,112 +1,133 @@
-import React,{useState, useEffect} from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { AddressContainer, Label, NameStyle, StyledSelect } from "./styles/FormStyles";
 import { Country, State, City } from "country-state-city"
+import Errorshow from "./Errorshow";
+
 interface IType {
-    handleAddressData: (data: any) => void;
-  }
-const AddressComponent: React.FC<IType>= (props)=>{
+  handleAddressData: (data: any) => void;
+  handleChange: (e: ChangeEvent) => void;
+  values: any;
+  formik: any;
+}
 
-    const [mainAddress, setMainAddress] = useState({
-      country: {
-        name:null,
-        code:null,
-      },
-      state: {
-        name: null,
-      },
-      city: null,
+
+
+const AddressComponent: React.FC<IType> = (props) => {
+
+  const [mainAddress, setMainAddress] = useState({
+    country: {
+      name: null,
+      code: null,
+    },
+    state: {
+      name: null,
+    },
+    city: null,
+  });
+
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+
+  useEffect(() => {
+    let allCountries = Country.getAllCountries();
+    let countryMenu = allCountries.map((country) => {
+      return {
+        name: country.name,
+        code: country.isoCode,
+      };
+
     });
+    setCountries(countryMenu)
 
-      const [countries, setCountries] = useState<any[]>([]);
-      const [states, setStates] = useState<any[]>([]);
-      const [cities, setCities] = useState<any[]>([]);
+  }, [])
 
-      useEffect(()=>{
-        let allCountries = Country.getAllCountries();
-        let countryMenu = allCountries.map((country)=>{
-          return {
-            name: country.name,
-            code: country.isoCode,
-          };
+  useEffect(() => {
+    props.handleAddressData(mainAddress)
+  }, [mainAddress, props]);
 
-        });
-        setCountries(countryMenu)
+  const countryChange = (name: any) => {
+    const option = countries.find((country) => country.name === name);
+    setMainAddress((pre) => ({
+      ...pre,
+      country: option,
+    }));
 
-      },[])
+    const states = State.getStatesOfCountry(option.code);
+    setStates(states);
+  }
 
-        useEffect(()=>{
-          props.handleAddressData(mainAddress)
-        },[mainAddress]);
+  const handleStateChange = (name: any) => {
+    const option = states.find((state) => state.name === name);
+    setMainAddress((pre) => ({
+      ...pre,
+      state: option,
+    }));
+    const city = City.getCitiesOfState(option.countryCode, option.isoCode);
+    setCities(city);
 
-        const countryChange = (e:any) => {
-          const option = countries.find((country)=> country.name === e.target.value);
-          setMainAddress((pre)=>({
-            ...pre,
-            country:option,
-          }));
-       
-        const states = State.getStatesOfCountry(option.code);
-        setStates(states);
-      }
+  };
 
-      const handleStateChange = (e: any) => {
-        const option = states.find((state)=> state.name === e.target.value);
-        setMainAddress((pre)=>({
-          ...pre,
-          state:option,
-        }));
-        const city = City.getCitiesOfState(option.countryCode, option.isoCode);
-        setCities(city);
+  const handleCityChange = (name: any) => {
+    const option = cities.find((city) => city.name === name);
+    setMainAddress((pre) => ({
+      ...pre,
+      city: option,
+    }));
+  };
 
-      };
-
-      const handleCityChange = (e:any) => {
-        const option = cities.find((city)=> city.name ===e.target.value);
-        setMainAddress((pre)=>({
-          ...pre,
-          city:option,
-        }));
-      };
-
-    return(
-        <>
-          <Label>4. Address</Label>
-          <AddressContainer>
-          <NameStyle>
+  return (
+    <>
+      <Label>4. Address</Label>
+      <AddressContainer>
+        {/* <>{console.log(props.values)}</> */}
+        <NameStyle>
           <StyledSelect
-            onChange={(e)=>countryChange(e)}
-            defaultValue="Select Country"
-            name="country"
-            id="country"
+            onChange={(e) => {
+              countryChange(e.target.value)
+              props.handleChange(e);
+            }}
+            value={props.values.country}
+            name="address.country"
+            id="address.country"
           >
-            <option value="Select Country" disabled>
+            <option value="Select Country">
               Select Country
             </option>
             {
-              countries.map((country)=>{
+              countries.map((country) => {
                 return (
                   <option key={country.code} value={country.name}>
-                  {country.name}
-                </option>
+                    {country.name}
+                  </option>
                 );
               })
             }
-           
+
           </StyledSelect>
+          {props.formik.touched.address?.country &&
+            props.formik.errors.address?.country ? (
+            <Errorshow>{props.formik.errors.address.country}</Errorshow>
+          ) : null}
         </NameStyle>
+      </AddressContainer>
+      <AddressContainer>
         <NameStyle>
           <StyledSelect
-           onChange={handleStateChange}
+            onChange={(e) => {
+              handleStateChange(e.target.value);
+              props.handleChange(e);
+            }}
             placeholder="Select State"
-            defaultValue="Select State"
-            name="state"
-            id="state"
+            name="address.state"
+            id="address.state"
+            value={props.values.state}
           >
-            <option value="Select State" disabled>
+            <option value="Select State">
               Select State
             </option>
             {states.map((state) => {
-                // console.log(country)
+              // console.log(country)
               return (
                 <option key={state.name} value={state.state}>
                   {state.name}
@@ -114,16 +135,24 @@ const AddressComponent: React.FC<IType>= (props)=>{
               );
             })}
           </StyledSelect>
+          {props.formik.touched.address?.state &&
+            props.formik.errors.address?.state ? (
+            <Errorshow>{props.formik.errors.address.state}</Errorshow>
+          ) : null}
         </NameStyle>
-
+      </AddressContainer>
+      <AddressContainer>
         <NameStyle>
           <StyledSelect
-            onChange={handleCityChange}
-            defaultValue="Select City"
-            name="city"
-            id="city"
+            onChange={(e) => {
+              handleCityChange(e.target.value);
+              props.handleChange(e);
+            }}
+            value={props.values.city}
+            name="address.city"
+            id="address.city"
           >
-            <option value="Select City" disabled>
+            <option value="Select City">
               Select City
             </option>
             {cities.map((city) => {
@@ -134,13 +163,17 @@ const AddressComponent: React.FC<IType>= (props)=>{
                 </option>
               );
             })}
-           
+
           </StyledSelect>
+          {props.formik.touched.address?.city &&
+            props.formik.errors.address?.city ? (
+            <Errorshow>{props.formik.errors.address.city}</Errorshow>
+          ) : null}
         </NameStyle>
-            </AddressContainer>
-        
-        </>
-    )
+      </AddressContainer>
+
+    </>
+  )
 
 }
 

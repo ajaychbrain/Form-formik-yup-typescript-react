@@ -1,6 +1,6 @@
 import React,{useState} from "react";
 
-import { Button, CheckboxInput, CheckboxLabel, TandCondition } from "./styles/FormStyles";
+import { Button, RadioboxInput, CheckboxLabel, TandCondition } from "./styles/FormStyles";
 
 
 interface ITandCond {
@@ -13,7 +13,7 @@ interface ITandCond {
         <>
         <TandCondition>
             <CheckboxLabel>
-                <CheckboxInput type="checkbox"/>
+                <RadioboxInput type="checkbox"/>
                 I have read, understood, and accepted the PRIVACY POLICY for
                 membership.Terms and Conditions
             </CheckboxLabel>

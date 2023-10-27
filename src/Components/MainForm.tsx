@@ -1,250 +1,284 @@
 import React, { useState } from 'react';
+import { Form, Formik } from "formik"
+import * as Yup from "yup";
 import { MainWrapper } from './styles/MainWrapper';
-import {Country, State, City } from "country-state-city"
-// import envelope from "./"
-import {Label, MainContainer, MainHeading, NameStyle } from './styles/FormStyles';
-// import MessageIcon from "./svg/messageIcon.svg";
+import { Country, State, City } from "country-state-city"
+import { Label, MainContainer, MainHeading, NameStyle,CheckboxInput, RadioboxInput, CheckboxLabel, TandCondition, Button } from './styles/FormStyles';
 import Input from './Input';
 import AddressComponent from './AddressComponent';
-import CheckboxComponent from './CheckBoxComponents';
+import CheckboxComponent from './CustomRadioComponent';
 import TermsAndCondition from './TermsAndCondition';
 import Errorshow from './Errorshow';
-// import { Container, LabelStyle } from './styles/FormStyles';
+import CustomRadioComponent from './CustomRadioComponent';
+import CustomCheckBoxComponent from './CustomCheckBoxComponent';
+
+
+
+interface RegisterFormDataValues {
+  firstName: string;
+  lastname: string;
+  dob: string;
+  email: string;
+  // termsmenu: string;
+  checkdata: string;
+  phone: string;
+  otherValue: string;
+  // radioData: string;
+  address: {
+    country: string;
+    state: string;
+    city: string;
+  };
+}
 
 const MainForm: React.FC = () => {
-  const [data, setData] = useState({
-    name: {
-      firstname: "",
-      secondname: "",
-    },
-    email: "",
-    phone: "",
+  const initialValues: RegisterFormDataValues = {
+    firstName: "",
+    lastname: "",
     dob: "",
-    checkboxData: {},
+    email: "",
+    // termsmenu: "",
+    checkdata: "",
+    phone: "",
+    otherValue: "",
+    // radioData: "",
     address: {
       country: "",
       state: "",
       city: "",
     },
-    otherData:"",
+
+  };
+
+  let phonValidation = /^\d{10}$/;
+  const validationSchema = Yup.object().shape({
+    firstName: Yup.string().required("First Name Required").min(3),
+    lastname: Yup.string().required("Last Name Required").min(3),
+    dob: Yup.date().required("Date Field is Required").max(new Date(Date.now() - 567648000000), "Person Should be Adult Age"),
+    phone: Yup.string().required("Phone Number is Required").matches(phonValidation, "Phone Number is not Valid"),
+    email: Yup.string().email("Email is not Valid").required("Email is Required"),
+    address: Yup.object().shape({
+      country: Yup.string().required("Please Select Country"),
+      state: Yup.string().required("Please Select State"),
+      city: Yup.string().required("Please Select City"),
+    }),
+    checkdata: Yup.string().required("Filed is required"),
   });
 
-  const initialError = {
-    name: {
-      firstname: "",
-      secondname: "",
-    },
-    email: "",
-    phone: "",
-    dob: "",
+  const handleAddressData = (value: any) => {
   };
-
-
-
-  const [error, setError] = useState(initialError);
-  const handleAddressData = (data: any) => {
-    setData((prev) => {
-      return {
-        ...prev,
-        address: {
-          country: data.country,
-          state: data.state,
-          city: data.city,
-        },
-      };
-    });
-  };
-  const handleCheckBoxData = (data: any, other:string) => {
-    console.log(other)
-    setData((prev) => {
-      return {
-        ...prev,
-        checkboxData: data,
-        otherData:other
-      };
-    });
-  };
-
-
-  const onChangeHandler = (e: any, w: string) => {
-    if (w === "fname") {
-      let fname = e.target.value;
-      setData((prev) => {
-        return {
-          ...prev,
-          name: {
-            ...prev.name,
-            firstname: fname,
-          },
-        };
-      });
-    }
-    if (w === "lname") {
-      let lname = e.target.value;
-      setData((prev) => {
-        return {
-          ...prev,
-          name: {
-            ...prev.name,
-            secondname: lname,
-          },
-        };
-      });
-    } else {
-      let value = e.target.value;
-      setData((prev) => {
-        return {
-          ...prev,
-          [w]: value,
-        };
-      });
-    }
-  };
-
-  const validateFormData = () => {
-    let isValid = true;
-    let allerror = { ...error };
-    if (data.name.firstname.length < 4 || !/^[A-Za-z]+$/.test(data.name.firstname)) {
-      isValid = false;
-      allerror.name.firstname =
-        "Please Enter Valid First Name";
-    }
-
-    if (data.name.secondname.length < 4 || !/^[A-Za-z]+$/.test(data.name.secondname)) {
-      isValid = false;
-      allerror.name.secondname =
-        "Please Enter Valid Last Name";
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
-      isValid = false;
-      allerror.email = "Please enter a valid email address.";
-    }
-
-    let phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(data.phone)) {
-      isValid = false;
-      allerror.phone = "Please enter a valid mobile number (10 digits)";
-    }
-
-    if (data.dob.length < 1) {
-      isValid = false;
-      allerror.dob = "Please enter date of birth";
-    }
-    setError(allerror);
-
-    return isValid;
-  }
-
-
-
-  const onSubmitHandler = () => {
-    const isValid = validateFormData();
-    if (isValid) {
-      console.log("Form Submitted SuccessFully",data);
-    }
-
-  };
-
-
-
 
   return (
     <>
-      <MainWrapper>
-        <MainHeading>Registration Form </MainHeading>
 
-        <MainContainer>
-          <Label>1. Name*</Label>
-          <NameStyle>
-            <Input
-              type="text"
-              label="NAME *"
-              placeholder="First Name"
-              // icon={MessageIcon}
-              onChange={(e: any) => onChangeHandler(e, "fname")}
+      <Formik
+        initialValues={initialValues}
+        onSubmit={(values, { resetForm }) => {
+          console.log("form submitted", values);
+          // resetForm();
+        }}
+        validationSchema={validationSchema}
 
-            />
-            <Input
-              type="text"
-              placeholder="Last Name"
-              onChange={(e: any) => onChangeHandler(e, "lname")}
-            />
-          </NameStyle>
-          <div style={{display:'flex',justifyContent:'center'}}>
-           <span> 
-          {error.name.firstname ? <Errorshow message={error.name.firstname} /> : ""}
-          </span><br/>
-          <span style={{marginLeft:'143px'}}>
-          {error.name.secondname ? <Errorshow message={error.name.secondname} /> : ""}
-          </span>
-          </div>
-        </MainContainer>
+      >
+        {(formikValues) => (
+          <>
+          <>{console.log(formikValues)}</>
+            <Form onSubmit={formikValues.handleSubmit}>
+              <MainWrapper>
+                <MainHeading>Registration Form </MainHeading>
 
-        <MainContainer>
-          <Label>2. Email*</Label>
-          <Input
-            type="email"
+                <MainContainer>
+                  <Label>1. Name*</Label>
+                  <NameStyle>
+                    <Input
+                      name="firstName"
+                      type="text"
+                      id="firstName"
+                      label="firstname"
+                      placeholder="First Name"
+                      onBlur={formikValues.handleBlur}
+                      onChange={formikValues.handleChange}
+                      value={formikValues.values.firstName}
+                    />
+                    {/* <>{console.log(formikValues.errors)}</> */}
+                    {formikValues.touched.firstName && formikValues.errors.firstName ? (
+                      <Errorshow>{formikValues.errors.firstName}</Errorshow>
+                    ) : null}
+                    <Input
+                      type="text"
+                      id="lastname"
+                      onBlur={formikValues.handleBlur}
+                      name="lastname"
+                      onChange={formikValues.handleChange}
+                      value={formikValues.values.lastname}
+                      placeholder="Last Name"
+                    />
+                    {
+                      formikValues.touched.lastname && formikValues.errors.lastname ? (
+                        <Errorshow>{formikValues.errors.lastname}</Errorshow>
+                      ) : null
+                    }
+                  </NameStyle>
+                
+                </MainContainer>
 
-            placeholder="Email"
-            onChange={(e: any) => onChangeHandler(e, "email")}
+                <MainContainer>
+                  <Label>2. Email*</Label>
+                  <Input
+                    type="email"
+                    id="email"
+                    onBlur={formikValues.handleBlur}
+                    name="email"
+                    value={formikValues.values.email}
+                    onChange={formikValues.handleChange}
+                    placeholder="Enter Email"
 
-          />
-          {error.email ? <Errorshow message={error.email} /> : ""}
-        </MainContainer>
+                  />
+                  {
+                    formikValues.touched.email && formikValues.errors.email ? (
+                      <Errorshow>{formikValues.errors.email}</Errorshow>
+                    ) : null
+                  }
+                </MainContainer>
+                <MainContainer>
+                  <Label>2. TelePhone*</Label>
+                  <Input
+                    type="phone"
+                    id="phone"
+                    placeholder="10 digit mobile number"
+                    value={formikValues.values.phone}
+                    onChange={formikValues.handleChange}
 
-        <MainContainer>
-          <Label>2. TelePhone*</Label>
-          <Input
-            type="phone"
-            //   icon={telephone}
-            placeholder="10 digit mobile number"
-            onChange={(e: any) => onChangeHandler(e, "phone")}
+                  />
+                  {formikValues.touched.phone && formikValues.errors.phone ? (
+                    <Errorshow>{formikValues.errors.phone}</Errorshow>
+                  ) : null}
 
-          />
-           {error.phone ? <Errorshow message={error.phone} /> : ""}
+                </MainContainer>
 
-        </MainContainer>
+                <MainContainer>
 
-        <MainContainer>
+                  <AddressComponent handleAddressData={handleAddressData}
+                    handleChange={formikValues.handleChange}
+                    values={formikValues.values.address}
+                    formik={formikValues}
+                  />
 
-          <AddressComponent handleAddressData={handleAddressData} />
+                </MainContainer>
 
-        </MainContainer>
+                <MainContainer>
+                  <Label>5. Date of Birth*</Label>
+                  <Input
+                    type="date"
+                    placeholder="DateofBirth"
+                    onBlur={formikValues.handleBlur}
+                    onChange={formikValues.handleChange}
+                    id="dob"
+                    name="dob"
+                    value={formikValues.values.dob}
 
-        <MainContainer>
-          <Label>5. Date of Birth*</Label>
-          <Input
-            type="date"
-            placeholder="DateofBirth"
-            onChange={(e: any) => onChangeHandler(e, "dob")}
+                  />
+                  {formikValues.touched.dob && formikValues.errors.dob ? (
+                    <Errorshow>{formikValues.errors.dob}</Errorshow>
+                  ) : null}
 
-          />
-           {error.dob ? <Errorshow message={error.dob} /> : ""}
+                </MainContainer>
 
-        </MainContainer>  
+                <MainContainer>
+                  <Label>6. Where did you hear about us?</Label>
+                  
+                  <div>
+                    <CustomRadioComponent
+                      htmlFor="friend"
+                      id="friend"
+                      values={formikValues.values}
+                      handleChange={formikValues.handleChange}
+                      type="radio"
+                      name="checkdata"
+                      label="Friend"
+                    />
+                  </div>
+                  <div>
+                    <CustomRadioComponent
+                      htmlFor="website"
+                      id="website"
+                      type="radio"
+                      handleChange={formikValues.handleChange}
+                      values={formikValues.values}
+                      name="checkdata"
+                      label="Website"
+                    />
+                  </div>
+                  <div>
+                    <CustomRadioComponent
+                      htmlFor="other"
+                      id="other"
+                      type="radio"
+                      handleChange={formikValues.handleChange}
+                      values={formikValues.values}
+                      name="checkdata"
+                      label="Other"
+                    />
+                  </div>
+                </MainContainer>
+                <MainContainer>
+                  {formikValues.values.checkdata === "Other" ? (
+                    <div>
+                      <CustomRadioComponent
+                        type="text"
+                        placeholder="Please specify"
+                        value={formikValues.values.otherValue}
+                        name="otherValue"
+                        handleChange={formikValues.handleChange}
+                        label=""
+                      />
+                    </div>
+                  ) : (
+                    (formikValues.values.otherValue = "")
+                  )}
+                  {formikValues.touched.checkdata && formikValues.errors.checkdata ? (
+                    <Errorshow>{formikValues.errors.checkdata}</Errorshow>
+                  ) : null}
 
-        <MainContainer>
-          <Label>6. Where did you hear about us?</Label>
+                </MainContainer>
 
-          <CheckboxComponent handleCheckBoxData={handleCheckBoxData} />
-        </MainContainer>
+                {/* <MainContainer>
+          <Label>7. Your Area of Interest</Label>
 
-        <MainContainer>
-          <TermsAndCondition onSubmitHandler={onSubmitHandler} />
+          <CustomCheckBoxComponent handleCheckBoxData={handleCheckBoxData} />
+        </MainContainer> */}
 
-        </MainContainer>
 
-    
 
-      </MainWrapper>
+                <MainContainer>
+                  <TandCondition>
+                    <CheckboxLabel>
+                      <CheckboxInput type="checkbox"
+                        name='termsmenu'
+                      />
+                      I have read, understood, and accepted the PRIVACY POLICY for
+                      membership.Terms and Conditions
+                    </CheckboxLabel>
+                    
+                    <Button
+                      type="submit"
+                    >
+                      Submit
+                    </Button>
+                  </TandCondition>
+
+                </MainContainer>
+
+
+
+              </MainWrapper>
+            </Form>
+          </>
+        )}
+      </Formik>
     </>
 
   )
-
-
-
 }
 
 export default MainForm;
